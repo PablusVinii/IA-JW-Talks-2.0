@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Esboços - Testemunhas de Jeová</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📖 Gerador de Esboços</h1>
+            <p>Testemunhas de Jeová - Preparação para Reuniões</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2 style="margin-bottom: 20px; color: #333;">Selecione o tipo de discurso:</h2>
+                
+                <div class="form-group">
+                    <label for="tipoDiscurso">Tipo de Discurso:</label>
+                    <select id="tipoDiscurso" name="tipoDiscurso">
+                        <option value="">Escolha uma opção...</option>
+                        <option value="tesouros">Tesouros da Palavra de Deus</option>
+                        <option value="publico">Discurso Público</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tema">Tema Específico (opcional):</label>
+                    <input type="text" id="tema" name="tema" placeholder="Digite um tema específico...">
+                </div>
+
+                <button class="btn" onclick="gerarEsboco()">
+                    🔍 Gerar Esboço
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Buscando informações na biblioteca JW.org...</p>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-header">
+                    <h2 class="result-title" id="resultTitle"></h2>
+                    <p class="result-type" id="resultType"></p>
+                </div>
+
+                <div class="pontos-section">
+                    <h3 class="section-title">📝 Pontos Principais</h3>
+                    <ul class="pontos-list" id="pontosList"></ul>
+                </div>
+
+                <div class="referencias-section">
+                    <h3 class="section-title">📚 Referências Bíblicas</h3>
+                    <div class="referencias-list" id="referenciasList"></div>
+                </div>
+            </div>
+
+            <div class="error" id="errorMessage" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
