@@ -1,5 +1,5 @@
 // Configurações da API
-const API_URL = 'http://localhost:5678/webhook/gerar-esboco'; // URL do webhook n8n
+const API_URL = 'http://localhost:5678/webhook-test/fd061969-eb2c-4355-89da-910ec299d4ef'; // URL do webhook n8n
 
 // Elementos DOM
 const elementos = {
@@ -19,40 +19,29 @@ async function gerarEsboco() {
     const tipoDiscurso = elementos.tipoDiscurso.value;
     const tema = elementos.tema.value.trim();
 
-    // Validação
     if (!tipoDiscurso) {
         mostrarAlerta('Por favor, selecione o tipo de discurso!');
         return;
     }
 
-    // Preparar interface
     mostrarCarregamento(true);
     esconderElementos();
 
     try {
-        // Fazer requisição para API
+        const temaFormatado = tema ? encodeURIComponent(tema) : null;
+
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                tipo_discurso: tipoDiscurso,
-                tema: tema || null
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo_discurso: tipoDiscurso, tema: temaFormatado })
         });
 
-        // Verificar se a resposta foi bem-sucedida
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
 
         const data = await response.json();
-        
-        // Validar dados recebidos
-        if (!data || typeof data !== 'object') {
-            throw new Error('Resposta inválida do servidor');
-        }
+        console.log('Resposta do servidor:', data);
+
+        if (!data || typeof data !== 'object') throw new Error('Resposta inválida do servidor');
 
         mostrarResultado(data);
 
@@ -62,53 +51,81 @@ async function gerarEsboco() {
     } finally {
         mostrarCarregamento(false);
     }
+    document.getElementById('btnDownload').style.display = 'inline-block';
+
 }
 
-// Função para mostrar o carregamento
+// Mostrar carregamento
 function mostrarCarregamento(mostrar) {
     elementos.loading.style.display = mostrar ? 'block' : 'none';
-    
-    // Desabilitar/habilitar botão
     const botao = document.querySelector('.btn');
     botao.disabled = mostrar;
     botao.textContent = mostrar ? '⏳ Gerando...' : '🔍 Gerar Esboço';
 }
 
-// Função para esconder elementos
+// Esconder elementos
 function esconderElementos() {
     elementos.resultSection.style.display = 'none';
     elementos.errorMessage.style.display = 'none';
 }
 
-// Função para mostrar resultado
+// Mostrar resultado (versão adaptada)
 function mostrarResultado(esboco) {
     try {
-        // Definir título e tipo
-        elementos.resultTitle.textContent = esboco.titulo || 'Esboço Gerado';
-        elementos.resultType.textContent = obterTextoTipo(esboco.tipo);
+        const texto = Array.isArray(esboco) ? esboco[0].output : esboco.output;
 
-        // Processar pontos principais
-        processarPontos(esboco.pontos);
+        if (!texto) throw new Error('Esboço sem conteúdo');
 
-        // Processar referências bíblicas
-        processarReferencias(esboco.referencias);
+        elementos.resultTitle.textContent = 'Esboço Gerado';
+        elementos.resultType.textContent = 'Discurso Personalizado';
+        elementos.pontosList.innerHTML = '';
+        elementos.referenciasList.innerHTML = '';
 
-        // Mostrar seção de resultados
+        // Criar um <pre> para preservar a formatação original
+        const pre = document.createElement('pre');
+        pre.textContent = texto;
+        pre.style.whiteSpace = 'pre-wrap';
+        pre.style.fontFamily = 'inherit';
+        pre.style.lineHeight = '1.6';
+        pre.style.background = '#f9f9f9';
+        pre.style.padding = '15px';
+        pre.style.borderRadius = '8px';
+
+        elementos.referenciasList.appendChild(pre);
+
         elementos.resultSection.style.display = 'block';
-
-        // Scroll suave para o resultado
-        elementos.resultSection.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
+        elementos.resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (error) {
         console.error('Erro ao processar resultado:', error);
         mostrarErro('Erro ao processar os dados recebidos');
     }
 }
+function baixarComoWord() {
+    const titulo = elementos.resultTitle.textContent || 'Esboço';
+    const tipo = elementos.resultType.textContent || '';
+    const pre = elementos.referenciasList.querySelector('pre');
 
-// Função para obter texto do tipo de discurso
+    if (!pre) return mostrarErro('Nenhum conteúdo para exportar.');
+
+    const conteudo = `${titulo}\n${tipo}\n\n${pre.textContent}`;
+
+    const blob = new Blob(
+        [`<html><head><meta charset="utf-8"></head><body><pre>${conteudo}</pre></body></html>`],
+        { type: 'application/msword' }
+    );
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${titulo.replace(/\s+/g, '_')}.doc`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+
+// Obter texto do tipo
 function obterTextoTipo(tipo) {
     const tipos = {
         'tesouros': 'Tesouros da Palavra de Deus',
@@ -117,103 +134,25 @@ function obterTextoTipo(tipo) {
     return tipos[tipo] || 'Tipo não especificado';
 }
 
-// Função para processar pontos principais
-function processarPontos(pontos) {
-    elementos.pontosList.innerHTML = '';
-    
-    if (pontos && Array.isArray(pontos) && pontos.length > 0) {
-        pontos.forEach((ponto, index) => {
-            if (ponto && typeof ponto === 'string' && ponto.trim()) {
-                const li = criarElementoPonto(ponto.trim(), index + 1);
-                elementos.pontosList.appendChild(li);
-            }
-        });
-    } else {
-        const li = criarElementoPonto(
-            'Nenhum ponto específico encontrado. Consulte a biblioteca JW.org para mais detalhes.'
-        );
-        elementos.pontosList.appendChild(li);
-    }
-}
-
-// Função para criar elemento de ponto
-function criarElementoPonto(texto, numero = null) {
-    const li = document.createElement('li');
-    li.textContent = texto;
-    
-    if (numero) {
-        li.setAttribute('data-numero', numero);
-    }
-    
-    return li;
-}
-
-// Função para processar referências bíblicas
-function processarReferencias(referencias) {
-    elementos.referenciasList.innerHTML = '';
-    
-    if (referencias && Array.isArray(referencias) && referencias.length > 0) {
-        const referenciasUnicas = [...new Set(referencias)]; // Remove duplicatas
-        
-        referenciasUnicas.forEach(ref => {
-            if (ref && typeof ref === 'string' && ref.trim()) {
-                const div = criarElementoReferencia(ref.trim());
-                elementos.referenciasList.appendChild(div);
-            }
-        });
-    } else {
-        const div = criarElementoReferencia(
-            'Consulte a Bíblia para referências apropriadas'
-        );
-        elementos.referenciasList.appendChild(div);
-    }
-}
-
-// Função para criar elemento de referência
-function criarElementoReferencia(texto) {
-    const div = document.createElement('div');
-    div.className = 'referencia-item';
-    div.textContent = texto;
-    
-    // Adicionar evento de clique para copiar
-    div.addEventListener('click', () => {
-        copiarTexto(texto);
-        div.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            div.style.transform = 'scale(1)';
-        }, 150);
-    });
-    
-    div.title = 'Clique para copiar';
-    
-    return div;
-}
-
-// Função para mostrar erro
+// Mostrar erro
 function mostrarErro(mensagem) {
     elementos.errorMessage.textContent = mensagem;
     elementos.errorMessage.style.display = 'block';
-    
-    // Scroll para o erro
-    elementos.errorMessage.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-    });
+    elementos.errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// Função para mostrar alerta
+// Mostrar alerta
 function mostrarAlerta(mensagem) {
     alert(mensagem);
 }
 
-// Função para copiar texto
+// Copiar texto
 async function copiarTexto(texto) {
     try {
         await navigator.clipboard.writeText(texto);
         mostrarNotificacao('Texto copiado!');
     } catch (err) {
         console.error('Erro ao copiar texto:', err);
-        // Fallback para navegadores mais antigos
         const textArea = document.createElement('textarea');
         textArea.value = texto;
         document.body.appendChild(textArea);
@@ -224,7 +163,7 @@ async function copiarTexto(texto) {
     }
 }
 
-// Função para mostrar notificação
+// Mostrar notificação
 function mostrarNotificacao(mensagem) {
     const notificacao = document.createElement('div');
     notificacao.className = 'notificacao';
@@ -241,75 +180,45 @@ function mostrarNotificacao(mensagem) {
         opacity: 0;
         transition: opacity 0.3s ease;
     `;
-    
+
     document.body.appendChild(notificacao);
-    
-    // Animar entrada
-    setTimeout(() => {
-        notificacao.style.opacity = '1';
-    }, 10);
-    
-    // Remover após 3 segundos
+    setTimeout(() => { notificacao.style.opacity = '1'; }, 10);
     setTimeout(() => {
         notificacao.style.opacity = '0';
-        setTimeout(() => {
-            document.body.removeChild(notificacao);
-        }, 300);
+        setTimeout(() => document.body.removeChild(notificacao), 300);
     }, 3000);
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Permitir envio com Enter no campo tema
-    elementos.tema.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            gerarEsboco();
-        }
-    });
-    
-    // Limpar resultado ao mudar tipo de discurso
-    elementos.tipoDiscurso.addEventListener('change', function() {
-        esconderElementos();
-    });
-    
-    // Limpar mensagem de erro ao digitar
-    elementos.tema.addEventListener('input', function() {
-        if (elementos.errorMessage.style.display === 'block') {
-            elementos.errorMessage.style.display = 'none';
-        }
-    });
-});
-
-// Função para exportar resultado (funcionalidade extra)
+// Exportar resultado
 function exportarResultado() {
     const titulo = elementos.resultTitle.textContent;
     const tipo = elementos.resultType.textContent;
-    
-    const pontos = Array.from(elementos.pontosList.children)
-        .map(li => li.textContent)
+    const texto = Array.from(elementos.referenciasList.children)
+        .map(p => p.textContent)
         .join('\n');
-    
-    const referencias = Array.from(elementos.referenciasList.children)
-        .map(div => div.textContent)
-        .join(', ');
-    
-    const conteudo = `
-${titulo}
-${tipo}
 
-PONTOS PRINCIPAIS:
-${pontos}
-
-REFERÊNCIAS BÍBLICAS:
-${referencias}
-    `.trim();
-    
+    const conteudo = `${titulo}\n${tipo}\n\n${texto}`.trim();
     copiarTexto(conteudo);
 }
 
-// Função para limpar formulário
+// Limpar formulário
 function limparFormulario() {
     elementos.tipoDiscurso.value = '';
     elementos.tema.value = '';
     esconderElementos();
 }
+
+// Listeners
+document.addEventListener('DOMContentLoaded', function () {
+    elementos.tema.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') gerarEsboco();
+    });
+
+    elementos.tipoDiscurso.addEventListener('change', esconderElementos);
+
+    elementos.tema.addEventListener('input', function () {
+        if (elementos.errorMessage.style.display === 'block') {
+            elementos.errorMessage.style.display = 'none';
+        }
+    });
+});
