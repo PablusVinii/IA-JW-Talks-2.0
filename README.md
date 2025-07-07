@@ -1,4 +1,4 @@
-# 📖 Gerador de Esboco - Testemunhas de Jeová
+# 📖 Gerador de Pesquisa - Testemunhas de Jeová
 
 Sistema automatizado para gerar esboços de discursos das reuniões das Testemunhas de Jeová, utilizando n8n para automação e interface web responsiva.
 
