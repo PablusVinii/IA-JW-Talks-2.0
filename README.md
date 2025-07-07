@@ -2,6 +2,7 @@
 
 Sistema automatizado para gerar esboços de discursos das reuniões das Testemunhas de Jeová, utilizando n8n para automação e interface web responsiva.
 
+Versão 1.1
 ## 🚀 Funcionalidades
 
 - ✅ Geração automática de esboços para "Tesouros da Palavra de Deus"
