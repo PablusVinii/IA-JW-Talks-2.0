@@ -99,7 +99,7 @@ select:focus, input:focus {
     transform: none;
 }
 
-.footer { 
+.footer {  
     text-align: center;
     margin-top: 30px;
     font-size: 0.9em;
