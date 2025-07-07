@@ -5,6 +5,9 @@ const API_URL = 'http://localhost:5678/webhook-test/fd061969-eb2c-4355-89da-910e
 const elementos = {
     tipoDiscurso: document.getElementById('tipoDiscurso'),
     tema: document.getElementById('tema'),
+    informacoesAdicionais: document.getElementById('informacoesAdicionais'),
+    versiculosOpicionais: document.getElementById('versiculosOpicionais'),
+    topicosOpicionais: document.getElementById('topicosOpicionais'),
     loading: document.getElementById('loading'),
     resultSection: document.getElementById('resultSection'),
     errorMessage: document.getElementById('errorMessage'),
@@ -18,6 +21,9 @@ const elementos = {
 async function gerarEsboco() {
     const tipoDiscurso = elementos.tipoDiscurso.value;
     const tema = elementos.tema.value.trim();
+    const informacoesAdicionais = elementos.informacoesAdicionais.value.trim();
+    const versiculosOpicionais = elementos.versiculosOpicionais.value.trim();
+    const topicosOpicionais = elementos.topicosOpicionais.value.trim();
 
     if (!tipoDiscurso) {
         mostrarAlerta('Por favor, selecione o tipo de discurso!');
@@ -33,7 +39,7 @@ async function gerarEsboco() {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo_discurso: tipoDiscurso, tema: temaFormatado })
+            body: JSON.stringify({ tipo_discurso: tipoDiscurso, tema: temaFormatado, informacoes_adicionais: informacoesAdicionais, versiculos_opicionais: versiculosOpicionais, topicos_opicionais: topicosOpicionais })
         });
 
         if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
@@ -83,7 +89,7 @@ function mostrarResultado(esboco) {
 
         // Criar um <pre> para preservar a formatação original
         const pre = document.createElement('pre');
-        pre.textContent = texto;
+        pre.innerHTML = formatarNegrito(texto);
         pre.style.whiteSpace = 'pre-wrap';
         pre.style.fontFamily = 'inherit';
         pre.style.lineHeight = '1.6';
@@ -123,6 +129,11 @@ function baixarComoWord() {
     link.click();
     document.body.removeChild(link);
 }
+function formatarNegrito(texto) {
+    return texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
+const conteudoBruto = "Este é um **exemplo em negrito** e aqui continua o texto.";
+document.getElementById('esbocoConteudo').innerHTML = formatarNegrito(conteudoBruto);
 
 
 // Obter texto do tipo

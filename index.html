@@ -26,16 +26,58 @@
                     </select>
                 </div>
 
+                <div class="form-group"></div>
+
                 <div class="form-group">
-                    <label for="tema">Tema Específico (opcional):</label>
+                    <label for="tema">Tema Específico:</label>
                     <input type="text" id="tema" name="tema" placeholder="Digite um tema específico...">
                 </div>
+
+                <div class="form-group">
+                    <label for="versiculosOpicionais">Versículos Bíblicos (opcional):</label>
+                    <input type="text" id="versiculosOpicionais" name="versiculosOpicionais" placeholder="Ex: João 3:16; Salmo 23:1; Mateus 6:33">
+                </div>
+                <div class="form-group">
+                    <label for="topicosOpicionais">Topicos a serem abordados (opcional):</label>
+                    <input type="text" id="topicosOpicionais" name="topicosOpicionais" placeholder="Topicos que você gostaria de incluir no esboço...">
+                </div>
+
+                <div class="form-group">
+                    <label for="informacoesAdicionais">Informações Adicionais (opcional):</label>
+                    <input type="text" id="informacoesAdicionais" name="informacoesAdicionais" placeholder="Ex: mais referências bíblicas, tom animador, exemplos práticos...">
+                </div>
+
 
                 <button class="btn" onclick="gerarEsboco()">
                     🔍 Gerar Esboço
                 </button>
+                <script>
+                function gerarEsboco() {
+                    // Exemplo de lógica para mostrar o tema no início do esboço
+                    const tema = document.getElementById('tema').value;
+                    const resultTitle = document.getElementById('resultTitle');
+                    resultTitle.textContent = tema ? tema : 'Esboço Gerado';
+                    // Continue com o restante da lógica de geração do esboço...
+                }
+                </script>
             </div>
+            <div class="esboco-section" id="esbocoSection" style="display: none;">
+                <h2 id="esbocoTema"></h2>
+                <div id="esbocoConteudo"></div>
+            </div>
+            <script>
+            function gerarEsboco() {
+                const tema = document.getElementById('tema').value;
+                const esbocoSection = document.getElementById('esbocoSection');
+                const esbocoTema = document.getElementById('esbocoTema');
+                esbocoTema.textContent = tema ? tema : 'Esboço Gerado';
+                esbocoSection.style.display = 'block';
 
+                // Lógica adicional para gerar o conteúdo do esboço pode ser adicionada aqui
+                // Exemplo:
+                // document.getElementById('esbocoConteudo').innerHTML = 'Conteúdo do esboço...';
+            }
+            </script>
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p>Buscando informações na biblioteca JW.org...</p>
@@ -60,13 +102,13 @@
 
             <div class="error" id="errorMessage" style="display: none;"></div>
         </div>
-        
-    </div>
     <div style="text-align: right; margin-top: 20px;">
     <button class="btn" id="btnDownload" onclick="baixarComoWord()" style="display: none;">
         📥 Baixar como Word
     </button>
     </div>
+    </div>
+    
 
     <footer class="footer">
         <p>Desenvolvido por <a href="" target="_blank">Seu Nome</a> - Testemunhas de Jeová</p>
