@@ -74,6 +74,63 @@ select:focus, input:focus {
     outline: none;
     border-color: #4a90e2;
 }
+/* Menu lateral */
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  background-color: #f3f3f3;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 60px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+.sidebar a.closebtn {
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 30px;
+}
+
+.sidebar h3 {
+  margin-left: 20px;
+  color: #333;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 10px 20px;
+}
+
+.sidebar li {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.menu-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  font-size: 18px;
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sair-btn {
+  background-color: #d9534f;
+  color: white;
+  margin: 20px;
+  width: 80%;
+}
 
 .btn {
     background: linear-gradient(135deg, #0a224b 0%, #0a224b 100%);

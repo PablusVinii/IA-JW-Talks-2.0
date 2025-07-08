@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerador de Esboços - Testemunhas de Jeová</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+    }
+
+    header button {
+      background: #fff;
+      color: #333;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    main h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    main p {
+      max-width: 600px;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .btn-cadastrar {
+      background-color: #fff;
+      color: #5a67d8;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .btn-cadastrar:hover {
+      background-color: #e2e8f0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      main h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gerador de Esboços TJ</h1>
+    <button onclick="window.location.href='login.html'">Login</button>
+  </header>
+
+  <main>
+    <h2>Crie discursos bíblicos com apenas 1 clique</h2>
+    <p>
+      O <strong>Gerador de Esboços</strong> é uma ferramenta feita para ajudar irmãos e irmãs a criar discursos baseados nas reuniões das Testemunhas de Jeová, com referências bíblicas e estrutura completa. Totalmente integrado com o conteúdo do JW.org.
+    </p>
+    <button class="btn-cadastrar" onclick="window.location.href='cadastro.html'">Criar Conta Gratuita</button>
+  </main>
+
+  <footer>
+    &copy; 2025 Gerador de Esboços TJ - Feito com fé e propósito 💜
+  </footer>
+</body>
+</html>
