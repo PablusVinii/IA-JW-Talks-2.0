@@ -20,6 +20,7 @@
         <hr>
         <nav>
             <h3><span role="img" aria-label="Relógio">🕓</span> Histórico de Esboços</h3>
+            <input type="text" id="buscaHistorico" placeholder="Buscar por tema, tipo ou data..." style="width:90%;margin:10px 5%;padding:8px;border-radius:6px;border:1px solid #ccc;outline:none;" />
             <ul id="historicoList">
                 <!-- Histórico será carregado aqui -->
             </ul>
@@ -119,6 +120,15 @@
                     <button class="btn" onclick="exportarResultado()" style="margin-left: 10px;">
                         📋 Copiar Texto
                     </button>
+                    <button class="btn" id="btnCompartilharEmail" style="margin-left: 10px;">
+                        ✉️ E-mail
+                    </button>
+                    <button class="btn" id="btnCompartilharWhats" style="margin-left: 10px;">
+                        💬 WhatsApp
+                    </button>
+                    <button class="btn" id="btnCompartilharLink" style="margin-left: 10px;">
+                        🔗 Link
+                    </button>
                 </div>
             </div>
 
@@ -134,5 +144,59 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <!-- Modal de Edição de Esboço -->
+    <div id="modalEdicao" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:2000;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:30px 20px;border-radius:12px;max-width:500px;width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2);position:relative;">
+            <button id="fecharModalEdicao" style="position:absolute;top:10px;right:15px;font-size:1.5em;background:none;border:none;cursor:pointer;">×</button>
+            <h2 style="margin-bottom:18px;">Editar Esboço</h2>
+            <form id="formEdicaoEsboco">
+                <div style="margin-bottom:12px;">
+                    <label for="edicaoTema">Tema:</label>
+                    <input type="text" id="edicaoTema" name="edicaoTema" style="width:100%;padding:8px;margin-top:4px;" required />
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label for="edicaoTipo">Tipo de Discurso:</label>
+                    <select id="edicaoTipo" name="edicaoTipo" style="width:100%;padding:8px;margin-top:4px;" required>
+                        <option value="">Escolha uma opção...</option>
+                        <option value="publico">Discurso Público (Em breve...)</option>
+                        <option value="pesquisa">Pesquisa Bíblica Profunda</option>
+                        <option value="tesouros">1. Tesouros da Palavra de Deus</option>
+                        <option value="publico">4. Iniciando conversas (Em breve...)</option>
+                        <option value="publico">5. Cultivando o interesse (Em breve...)</option>
+                        <option value="publico">6. Explicando suas crenças (Em breve...)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label for="edicaoConteudo">Conteúdo:</label>
+                    <textarea id="edicaoConteudo" name="edicaoConteudo" rows="8" style="width:100%;padding:8px;margin-top:4px;resize:vertical;" required></textarea>
+                </div>
+                <div style="text-align:right;">
+                    <button type="button" id="cancelarEdicao" style="margin-right:10px;" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Visualização Detalhada de Esboço -->
+    <div id="modalDetalheEsboco">
+        <div class="modal-content">
+            <button id="fecharModalDetalhe">×</button>
+            <h2 id="detalheTema"></h2>
+            <div id="detalheTipo"></div>
+            <div id="detalheData"></div>
+            <div id="detalheConteudo"></div>
+            <div style="text-align:right;">
+                <button class="btn" id="btnDetalheCopiar">📋 Copiar</button>
+                <button class="btn" id="btnDetalheExportar" style="margin-left:8px;">⬇️ Exportar</button>
+                <button class="btn" id="btnDetalheEditar" style="margin-left:8px;">✏️ Editar</button>
+                <button class="btn" id="btnDetalheEmail" style="margin-left:8px;">✉️ E-mail</button>
+                <button class="btn" id="btnDetalheWhats" style="margin-left:8px;">💬 WhatsApp</button>
+                <button class="btn" id="btnDetalheLink" style="margin-left:8px;">🔗 Link</button>
+            </div>
+            <div id="msgModalDetalhe"></div>
+        </div>
+    </div>
 </body>
 </html>
