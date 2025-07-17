@@ -21,7 +21,7 @@ function setupLoginForm() {
                 msgLogin.textContent = "Login bem-sucedido! Redirecionando...";
                 msgLogin.style.color = "green";
                 setTimeout(() => {
-                    window.location.href = "index.html";
+                    redirecionarAposLoginPadrao();
                 }, 1500);
             } catch (error) {
                 msgLogin.textContent = "E-mail ou senha inválidos!";
@@ -106,7 +106,7 @@ function setupCadastroForm() {
                 });
                 showMessage("Cadastro realizado com sucesso! Redirecionando...", "success");
                 setTimeout(() => {
-                    window.location.href = "index.html";
+                    redirecionarAposLoginPadrao();
                 }, 2000);
             } catch (error) {
                 let errorMessage = "Erro ao criar conta. Tente novamente.";
@@ -130,6 +130,17 @@ function setupCadastroForm() {
                 showLoading(false);
             }
         });
+    }
+}
+
+// Após login/cadastro bem-sucedido, redirecionar para o link salvo (se houver)
+function redirecionarAposLoginPadrao() {
+    const redirect = localStorage.getItem('redirectAfterLogin');
+    if (redirect) {
+        localStorage.removeItem('redirectAfterLogin');
+        window.location.href = redirect;
+    } else {
+        window.location.href = 'index.html';
     }
 }
 

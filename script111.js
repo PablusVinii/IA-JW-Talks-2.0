@@ -1,6 +1,7 @@
+// Funções globais para navegação e menu
 function abrirMenu() {
     const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.style.width = "300px";
+    if (sidebar) sidebar.style.width = "30x";
 }
 
 function fecharMenu() {
@@ -28,121 +29,10 @@ function excluirEsboco(docId, tema) {
     }
 }
 
-function gerarEsboco() {
-    // Coletar dados do formulário
-    const tipoDiscurso = elementos.tipoDiscurso ? elementos.tipoDiscurso.value : '';
-    const tempo = elementos.tempo ? elementos.tempo.value : '';
-    const tema = elementos.tema ? elementos.tema.value.trim() : '';
-    const versiculos = elementos.versiculosOpicionais ? elementos.versiculosOpicionais.value.trim() : '';
-    const topicos = elementos.topicosOpicionais ? elementos.topicosOpicionais.value.trim() : '';
-    const informacoes = elementos.informacoesAdicionais ? elementos.informacoesAdicionais.value.trim() : '';
-
-    // Validação básica
-    if (!tipoDiscurso || !tema || !tempo) {
-        if (elementos.errorMessage) {
-            elementos.errorMessage.textContent = 'Preencha todos os campos obrigatórios (Tipo, Tema e Tempo).';
-            elementos.errorMessage.style.display = 'block';
-        }
-        return;
-    }
-    if (elementos.errorMessage) elementos.errorMessage.style.display = 'none';
-
-    // Exibir loading
-    if (elementos.loading) elementos.loading.style.display = 'block';
-    if (elementos.resultSection) elementos.resultSection.style.display = 'none';
-    if (elementos.btnDownload) elementos.btnDownload.style.display = 'none';
-
-    // Montar payload
-    const payload = {
-        tipoDiscurso,
-        tempo,
-        tema,
-        versiculos,
-        topicos,
-        informacoes
-    };
-
-    // Requisição para API
-    fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(async (response) => {
-        if (!response.ok) throw new Error('Erro ao gerar esboço.');
-        return await response.json();
-    })
-    .then((data) => {
-        // Se vier como array, pega o primeiro objeto
-        if (Array.isArray(data)) {
-            data = data[0] || {};
-        }
-        if (elementos.loading) elementos.loading.style.display = 'none';
-        if (elementos.resultSection) elementos.resultSection.style.display = 'block';
-        if (elementos.btnDownload) elementos.btnDownload.style.display = 'inline-block';
-
-        // Título e tipo do esboço
-        if (elementos.resultTitle) elementos.resultTitle.textContent = tema || 'Esboço Gerado';
-        if (elementos.resultType) elementos.resultType.textContent = tipoDiscurso || 'Discurso Personalizado';
-
-        // Limpa lista de pontos
-        if (elementos.pontosList) elementos.pontosList.innerHTML = '';
-
-        // Exibe o texto completo do esboço
-        if (elementos.referenciasList) {
-            elementos.referenciasList.innerHTML = '';
-            const pre = document.createElement('pre');
-            pre.textContent = data.output || '';
-            elementos.referenciasList.appendChild(pre);
-        }
-
-        window.ultimoEsbocoGerado = data;
-
-        // Salvar no Firestore se usuário autenticado
-        let dbInstance = null;
-        try {
-            dbInstance = db || firebase.firestore();
-        } catch (e) {
-            dbInstance = firebase.firestore();
-        }
-        const user = window.geradorEsboco && window.geradorEsboco.usuarioAtual;
-        if (user && dbInstance) {
-            dbInstance.collection('esbocos').add({
-                uid: user.uid,
-                tema: tema,
-                tipoDiscurso: tipoDiscurso,
-                conteudo: data.output || '',
-                tempo: tempo,
-                versiculos: versiculos,
-                topicos: topicos,
-                informacoes: informacoes,
-                criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                // Recarregar histórico
-                if (window.geradorEsboco && typeof window.geradorEsboco.carregarHistorico === 'function') {
-                    window.geradorEsboco.carregarHistorico(user.uid);
-                }
-            }).catch((err) => {
-                console.error('Erro ao salvar esboço:', err);
-                alert('Erro ao salvar esboço no banco de dados: ' + (err.message || err));
-            });
-        } else {
-            alert('Usuário não autenticado ou Firestore não inicializado!');
-        }
-    })
-    .catch((err) => {
-        if (elementos.loading) elementos.loading.style.display = 'none';
-        if (elementos.resultSection) elementos.resultSection.style.display = 'none';
-        if (elementos.errorMessage) {
-            elementos.errorMessage.textContent = err.message || 'Erro ao gerar esboço.';
-            elementos.errorMessage.style.display = 'block';
-        }
-    });
-}
-
 // Configurações da API
-const API_URL = 'http://localhost:5678/webhook-test/fd061969-eb2c-4355-89da-910ec299d4ef';
+const API_URL = 'http://localhost:5678/webhook-test/fd061969eb24355-89a-910d4ef';
 
+// Elementos do DOM
 const elementos = {
     tipoDiscurso: document.getElementById('tipoDiscurso'),
     tema: document.getElementById('tema'),
@@ -167,6 +57,7 @@ const elementos = {
 class GeradorEsboco {
     constructor() {
         this.usuarioAtual = null;
+        this.isAdmin = false;
         this.inicializar();
     }
 
@@ -229,7 +120,7 @@ class GeradorEsboco {
                         adminLinkElement.href = "admin-login.html";
                         adminLinkElement.className = 'btn';
                         adminLinkElement.id = 'adminLink';
-                        adminLinkElement.style.cssText = "margin: 8px 20px 0 20px; display:block; text-align:center; background: linear-gradient(135deg, #f93fb0%, #f5576c100)";
+                        adminLinkElement.style.cssText = "margin: 8px 20px 0 20px; display:block; text-align:center; background: linear-gradient(135deg, #f93fb0%, #f5576c100%)";
                         adminLinkElement.textContent = '🔒 Painel Admin';
                         perfilLink.parentNode.insertBefore(adminLinkElement, perfilLink.nextSibling);
                     }
@@ -239,14 +130,14 @@ class GeradorEsboco {
                     adminLink.remove();
                 }
             }
-        }, 100);
+        }, 10);
     }
 
     // Carregar histórico de esboços do usuário
     async carregarHistorico(uid) {
         if (!elementos.historicoList) return;
         
-        elementos.historicoList.innerHTML = '<li style="color:#666;font-style:italic;">Carregando histórico...</li>';
+        elementos.historicoList.innerHTML = `<li style="color:#666;font-style:italic;">Carregando histórico...</li>`;
         
         try {
             const query = db.collection("esbocos")
@@ -257,7 +148,7 @@ class GeradorEsboco {
             const snapshot = await query.get();
             elementos.historicoList.innerHTML = '';
             if (snapshot.empty) {
-                elementos.historicoList.innerHTML = '<li style="color:#666;font-style:italic;">Você ainda não gerou esboços.</li>';
+                elementos.historicoList.innerHTML = `<li style="color:#666;font-style:italic;">Você ainda não gerou esboços.</li>`;
                 return;
             }
             
@@ -280,8 +171,8 @@ class GeradorEsboco {
                 
                 const star = document.createElement('span');
                 star.innerHTML = data.favorito ? '⭐' : '☆';
-                star.title = data.favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
-                star.style.cssText = 'font-size: 1.3em; margin-right: 10px; cursor: pointer; user-select: none;';
+                star.title = data.favorito ? 'Remover dos favoritos' : 'Dicionar aos favoritos';
+                star.style.cssText = "font-size: 1.3em; margin-right: 10px; cursor: pointer; user-select: none;";
                 star.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.toggleFavorito(doc.id, data.favorito);
@@ -327,7 +218,7 @@ class GeradorEsboco {
             });
             
         } catch (error) {
-            elementos.historicoList.innerHTML = '<li style="color:red;">Erro ao carregar histórico</li>';
+            elementos.historicoList.innerHTML = `<li style="color:red;">Erro ao carregar histórico</li>`;
             console.error("Erro ao carregar histórico:", error);
         }
     }
@@ -365,8 +256,8 @@ class GeradorEsboco {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width:100%;
+            height:100%;
             background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
@@ -377,7 +268,7 @@ class GeradorEsboco {
         modal.innerHTML = `
             <div style="background:white;padding:30px;border-radius:12px;max-width:600px;width:95vw;position:relative;max-height:90vh;overflow-y:auto;">
                 <button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:10px;right:15px;background:none;border:none;font-size:24px;cursor:pointer;">×</button>
-                <h2 style="margin-bottom:10px;color:#333;">${data.tema || 'Esboço'}</h2>
+                <h2 style="margin-bottom:10px;color:#333">${data.tema || 'Esboço'}</h2>
                 <div style="color:#666;margin-bottom:20px;">
                     <strong>Tipo:</strong> ${this.formatarTipoDiscurso(data.tipoDiscurso)}<br>
                     <strong>Data:</strong> ${data.criadoEm?.toDate ? data.criadoEm.toDate().toLocaleString('pt-BR') : 'Data não disponível'}<br>
@@ -405,7 +296,9 @@ class GeradorEsboco {
         
         // Adicionar evento de clique no botão de exclusão
         const btnExcluir = modal.querySelector('#btnExcluir');
-        btnExcluir.addEventListener('click', () => this.excluirEsboco(docId, data.tema || 'Esboço'));
+        btnExcluir.addEventListener('click', () => {
+            this.excluirEsboco(docId, data.tema || 'Esboço');
+        });
         
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -465,13 +358,13 @@ class GeradorEsboco {
                 
                 <form id="formEdicaoEsboco">
                     <div style="margin-bottom:15px;">
-                        <label for="edicaoTema" style="display:block;margin-bottom:5px;font-weight:600;">Tema:</label>
+                        <label for="edicaoTema" style="display:block;margin-bottom:5px;font-weight:600">Tema:</label>
                         <input type="text" id="edicaoTema" value="${data.tema || ''}" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;" />
                     </div>
                     
                     <div style="margin-bottom:15px;">
                         <label for="edicaoTipo" style="display:block;margin-bottom:5px;font-weight:600;">Tipo de Discurso:</label>
-                        <select id="edicaoTipo" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;" required>
+                        <select id="edicaoTipo" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
                             <option value="">Escolha uma opção...</option>
                             <option value="tesouros" ${data.tipoDiscurso === 'tesouros' ? 'selected' : ''}>Tesouros da Palavra</option>
                             <option value="pesquisa" ${data.tipoDiscurso === 'pesquisa' ? 'selected' : ''}>Pesquisa Bíblica</option>
@@ -484,13 +377,13 @@ class GeradorEsboco {
                     </div>
                     
                     <div style="margin-bottom:15px;">
-                        <label for="edicaoTempo" style="display:block;margin-bottom:5px;font-weight:600;">Tempo (minutos):</label>
-                        <input type="number" id="edicaoTempo" value="${data.tempo || '1'}" min="1" max="60" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;" />
+                        <label for="edicaoTempo" style="display:block;margin-bottom:5px;font-weight:600">Tempo (minutos):</label>
+                        <input type="number" id="edicaoTempo" value="${data.tempo || 1}" min="1" max="60" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;" />
                     </div>
                     
                     <div style="margin-bottom:15px;">
                         <label for="edicaoConteudo" style="display:block;margin-bottom:5px;font-weight:600;">Conteúdo:</label>
-                        <textarea id="edicaoConteudo" rows="12" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;resize:vertical;font-family:inherit;" required>${data.conteudo || ''}</textarea>
+                        <textarea id="edicaoConteudo" rows="12" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;resize:vertical;font-family:inherit;">${data.conteudo || ''}</textarea>
                     </div>
                     
                     <div style="text-align:right;">
@@ -525,34 +418,24 @@ class GeradorEsboco {
             const tipo = document.getElementById('edicaoTipo').value;
             const tempo = document.getElementById('edicaoTempo').value;
             const conteudo = document.getElementById('edicaoConteudo').value.trim();
-
-            // Busca o documento original para garantir que não perca campos obrigatórios
-            const docRef = db.collection("esbocos").doc(docId);
-            const docSnap = await docRef.get();
-            const original = docSnap.exists ? docSnap.data() : {};
-
-            // Atualiza apenas os campos editáveis, mantendo os obrigatórios se não forem editados
+            
             const dadosAtualizados = {
-                tema: tema || original.tema || "Sem tema",
-                tipoDiscurso: tipo || original.tipoDiscurso || "não especificado",
-                tempo: tempo || original.tempo || "",
-                conteudo: conteudo || original.conteudo || "",
+                tema: tema,
+                tipoDiscurso: tipo,
+                tempo: tempo,
+                conteudo: conteudo,
                 editadoEm: firebase.firestore.FieldValue.serverTimestamp()
             };
-
-            await docRef.update(dadosAtualizados);
-
-            // Fechar modal
+            
+            await db.collection("esbocos").doc(docId).update(dadosAtualizados);
+            
             document.getElementById('modalEdicao').remove();
-
-            // Recarregar histórico
             await this.carregarHistorico(this.usuarioAtual.uid);
-
             alert('Esboço editado com sucesso!');
-
+            
         } catch (error) {
             console.error('Erro ao editar esboço:', error);
-            alert('Erro ao salvar edição:' + error.message);
+            alert('Erro ao salvar edição: ' + error.message);
         }
     }
 
@@ -561,7 +444,7 @@ class GeradorEsboco {
         const notificacoesList = document.getElementById('notificacoesList');
         if (!notificacoesList) return;
         
-        notificacoesList.innerHTML = '<li style="color:#666;font-style:italic;">Carregando notificações...</li>';
+        notificacoesList.innerHTML = `<li style="color:#666;font-style:italic;">Carregando notificações...</li>`;
         
         try {
             // Buscar notificações específicas do usuário
@@ -578,7 +461,7 @@ class GeradorEsboco {
                 .get();
 
             // Combinar as duas consultas
-            const todasNotificacoes = [];
+            const todasNotificacoes =      
             // Adicionar notificações específicas
             snapshotEspecificas.docs.forEach(doc => {
                 todasNotificacoes.push({ id: doc.id, ...doc.data() });
@@ -590,13 +473,14 @@ class GeradorEsboco {
             });
 
             if (todasNotificacoes.length === 0) {
-                notificacoesList.innerHTML = '<li style="color:#666;font-style:italic;">Nenhuma notificação</li>';
+                notificacoesList.innerHTML = `<li style="color:#666;font-style:italic;">Nenhuma notificação</li>`;
                 this.atualizarContadorNotificacoes(0);
                 return;
             }
 
             notificacoesList.innerHTML = '';
             let naoLidas = 0;
+            
             // Ordenar por data (mais recente primeiro)
             todasNotificacoes.sort((a, b) => {
                 const dataA = a.data?.toDate ? a.data.toDate() : new Date(a.data || 0);
@@ -613,7 +497,7 @@ class GeradorEsboco {
                     margin: 8px 0;
                     border-radius: 8px;
                     background: ${data.lida ? '#f8fa' : '#e3f2fd'};
-                    border-left: 4px solid ${data.lida ? '#6c757d' : '#007bff'};
+                    border-left: 4px solid ${data.lida ? '#6c757d' : '#4a90e2'};
                     cursor: pointer;
                     transition: all 0.2s;
                     position: relative;
@@ -661,7 +545,7 @@ class GeradorEsboco {
             this.atualizarContadorNotificacoes(naoLidas);
 
         } catch (error) {
-            notificacoesList.innerHTML = '<li style="color:red;">Erro ao carregar notificações</li>';
+            notificacoesList.innerHTML = `<li style="color:red;">Erro ao carregar notificações</li>`;
             console.error("Erro ao carregar notificações:", error);
         }
     }
@@ -709,7 +593,7 @@ class GeradorEsboco {
                 }
             }
         } catch (error) {
-            console.error("Erro ao atualizar contador:", error);
+            console.error('Erro ao atualizar contador:', error);
         }
     }
 
@@ -777,7 +661,7 @@ class GeradorEsboco {
             
         } catch (error) {
             console.error('Erro ao marcar notificações como lidas:', error);
-            alert('Erro ao marcar notificações como lidas:' + error.message);
+            alert('Erro ao marcar notificações como lidas: ' + error.message);
         }
     }
 
@@ -788,8 +672,8 @@ class GeradorEsboco {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width:100%;
+            height:100%;
             background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
@@ -840,26 +724,23 @@ class GeradorEsboco {
 
     // Excluir esboço
     async excluirEsboco(docId, tema) {
-        const confirmacao = confirm(`Tem certeza que deseja excluir o esboço ${tema}"?\n\nEsta ação não pode ser desfeita.`);
+        const confirmacao = confirm(`Tem certeza que deseja excluir o esboço ${tema}?
+\nEsta ação não pode ser desfeita.`);
         
         if (confirmacao) {
             try {
                 await db.collection("esbocos").doc(docId).delete();
-                
                 // Fechar modal de detalhes se estiver aberto
                 const modalDetalhes = document.querySelector('div[style*="z-index: 3000"]');
                 if (modalDetalhes) {
                     modalDetalhes.remove();
                 }
-                
                 // Recarregar histórico
                 await this.carregarHistorico(this.usuarioAtual.uid);
-                
                 alert('Esboço excluído com sucesso!');
-                
             } catch (error) {
                 console.error('Erro ao excluir esboço:', error);
-                alert('Erro ao excluir esboço:' + error.message);
+                alert('Erro ao excluir esboço: ' + error.message);
             }
         }
     }
